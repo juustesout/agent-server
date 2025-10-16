@@ -1,6 +1,27 @@
 # OpenAI Agents API - Simplified with @openai/agents
 
-A **dramatically simplified** TypeScript API using the official OpenAI Agents SDK, designed for deployment on Vercel with GitHub integration.
+A **dramatically simplified** T## 📦 **Deployment to Vercel**
+
+### Quick Deploy
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/openai-agents-api&env=OPENAI_API_KEY,API_KEY,ALLOWED_ORIGINS)
+
+### Manual Deployment
+
+1. **Connect GitHub to Vercel**
+   - Go to [vercel.com](https://vercel.com)
+   - Import your GitHub repository
+   - Configure environment variables
+
+2. **Set Environment Variables**
+   ```
+   OPENAI_API_KEY=sk-your-openai-api-key
+   API_KEY=your-custom-api-key
+   ALLOWED_ORIGINS=https://yourdomain.com
+   ```
+
+3. **Deploy** - Vercel will auto-deploy on every push to main
+
+### Automatic DeploymentScript API using the official OpenAI Agents SDK, designed for deployment on Vercel with GitHub integration.
 
 ## 🎯 **Why This is Better**
 
