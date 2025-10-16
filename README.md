@@ -9,17 +9,52 @@ A **dramatically simplified** T## 📦 **Deployment to Vercel**
 
 1. **Connect GitHub to Vercel**
    - Go to [vercel.com](https://vercel.com)
+   - Click "New Project"
    - Import your GitHub repository
-   - Configure environment variables
 
-2. **Set Environment Variables**
-   ```
-   OPENAI_API_KEY=sk-your-openai-api-key
-   API_KEY=your-custom-api-key
-   ALLOWED_ORIGINS=https://yourdomain.com
-   ```
+2. **Set Environment Variables** in Vercel Dashboard
+   
+   Go to Project Settings → Environment Variables and add:
+   
+   | Variable | Value | Description |
+   |----------|--------|-------------|
+   | `OPENAI_API_KEY` | `sk-your-openai-api-key` | Your OpenAI API key |
+   | `API_KEY` | `your-custom-api-key` | Custom key for API authentication |
+   | `ALLOWED_ORIGINS` | `https://yourdomain.com,*` | CORS allowed origins |
 
-3. **Deploy** - Vercel will auto-deploy on every push to main
+3. **Deploy** 
+   - Click "Deploy" 
+   - Vercel will auto-deploy on every push to main branch
+
+### CLI Deployment
+
+If using Vercel CLI:
+
+```bash
+# Install Vercel CLI
+npm install -g vercel
+
+# Login and deploy
+vercel login
+vercel
+
+# Set environment variables
+vercel env add OPENAI_API_KEY
+vercel env add API_KEY  
+vercel env add ALLOWED_ORIGINS
+
+# Deploy to production
+vercel --prod
+```
+
+### Post-Deployment Testing
+
+Your API will be available at: `https://your-project.vercel.app`
+
+Test endpoints:
+- `GET /api/agents` - List available agents
+- `POST /api/quick-chat` - Smart agent routing
+- `POST /api/chat/weather` - Direct weather agent
 
 ### Automatic DeploymentScript API using the official OpenAI Agents SDK, designed for deployment on Vercel with GitHub integration.
 

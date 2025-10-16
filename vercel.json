@@ -18,11 +18,6 @@
       "dest": "/api/run.ts?path=quick-chat"
     }
   ],
-  "env": {
-    "OPENAI_API_KEY": "@openai_api_key",
-    "API_KEY": "@api_key",
-    "ALLOWED_ORIGINS": "@allowed_origins"
-  },
   "functions": {
     "api/**/*.ts": {
       "runtime": "nodejs18.x"
