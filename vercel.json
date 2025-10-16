@@ -17,10 +17,5 @@
       "src": "/api/quick-chat",
       "dest": "/api/run.ts?path=quick-chat"
     }
-  ],
-  "functions": {
-    "api/**/*.ts": {
-      "runtime": "nodejs18.x"
-    }
-  }
+  ]
 }
