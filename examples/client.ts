@@ -317,8 +317,3 @@ export async function runAllExamples() {
 
   console.log('\n✅ All examples completed!');
 }
-    return this.request(`/api/agents/${agentId}`, {
-      method: 'PUT',
-      body: JSON.stringify(updates),
-    });
-  }
