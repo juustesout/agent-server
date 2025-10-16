@@ -1,0 +1,37 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/**/*.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/agents",
+      "dest": "/api/run.ts?path=agents"
+    },
+    {
+      "src": "/api/agents/(.*)",
+      "dest": "/api/run.ts?path=agents&path=$1"
+    },
+    {
+      "src": "/api/chat/(.*)",
+      "dest": "/api/run.ts?path=chat&path=$1"
+    },
+    {
+      "src": "/api/quick-chat",
+      "dest": "/api/run.ts?path=quick-chat"
+    }
+  ],
+  "env": {
+    "OPENAI_API_KEY": "@openai_api_key",
+    "API_KEY": "@api_key",
+    "ALLOWED_ORIGINS": "@allowed_origins"
+  },
+  "functions": {
+    "api/**/*.ts": {
+      "runtime": "nodejs18.x"
+    }
+  }
+}
