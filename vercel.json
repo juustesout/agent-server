@@ -1,21 +1,3 @@
 {
-  "version": 2,
-  "routes": [
-    {
-      "src": "/api/agents",
-      "dest": "/api/run.ts?path=agents"
-    },
-    {
-      "src": "/api/agents/(.*)",
-      "dest": "/api/run.ts?path=agents&path=$1"
-    },
-    {
-      "src": "/api/chat/(.*)",
-      "dest": "/api/run.ts?path=chat&path=$1"
-    },
-    {
-      "src": "/api/quick-chat",
-      "dest": "/api/run.ts?path=quick-chat"
-    }
-  ]
+  "version": 2
 }
