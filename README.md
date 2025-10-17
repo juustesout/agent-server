@@ -58,36 +58,6 @@ Test endpoints:
 
 ### Automatic DeploymentScript API using the official OpenAI Agents SDK, designed for deployment on Vercel with GitHub integration.
 
-## 🎯 **Why This is Better**
-
-Instead of manually managing threads, runs, and messages, this API uses the official **@openai/agents** SDK which provides:
-
-- ✅ **90% Less Code** - No complex state management
-- ✅ **Built-in Agent Loop** - Automatic tool calling and response handling  
-- ✅ **Smart Handoffs** - Agent-to-agent delegation
-- ✅ **Guardrails** - Input validation and safety checks
-- ✅ **Streaming Support** - Real-time responses
-- ✅ **TypeScript-First** - Full type safety
-- ✅ **Production Ready** - Built by OpenAI team
-
-## 🚀 **Features**
-
-### **Simplified Architecture**
-```typescript
-// Old way (complex):
-// 1. Create thread
-// 2. Add message to thread  
-// 3. Create run
-// 4. Poll run status
-// 5. Get messages
-// 6. Handle tool calls manually
-
-// New way (simple):
-const agent = new Agent({ name: 'Helper', instructions: 'You help users' });
-const result = await run(agent, 'Hello world!');
-console.log(result.finalOutput);
-```
-
 ### **Smart Agent Routing**
 - **Coordinator Agent** - Routes requests to specialized agents
 - **Weather Agent** - Handles weather queries with tools
@@ -118,18 +88,6 @@ cd openai-agents-api
 2. Install dependencies
 ```bash
 npm install
-```
-
-3. Set up environment variables
-```bash
-cp .env.example .env
-```
-
-Edit `.env` with your configuration:
-```env
-OPENAI_API_KEY=your_openai_api_key_here
-API_KEY=your_custom_api_key_for_authentication
-ALLOWED_ORIGINS=https://yourdomain.com,http://localhost:3000
 ```
 
 ## 🚀 **Local Development**
