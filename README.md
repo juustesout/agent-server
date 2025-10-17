@@ -353,68 +353,6 @@ const safeAgent = new Agent({
 });
 ```
 
-## 🎯 **Comparison: Before vs After**
-
-### **Before (Manual OpenAI SDK)**
-```typescript
-// 50+ lines of code just to send one message:
-const thread = await openai.beta.threads.create();
-const message = await openai.beta.threads.messages.create(thread.id, {
-  role: 'user',
-  content: 'Hello'
-});
-const run = await openai.beta.threads.runs.create(thread.id, {
-  assistant_id: 'asst_...'
-});
-// Poll for completion...
-// Handle tool calls manually...
-// Extract final response...
-```
-
-### **After (OpenAI Agents SDK)**
-```typescript
-// 3 lines of code:
-const agent = new Agent({ name: 'Helper', instructions: 'Be helpful' });
-const result = await run(agent, 'Hello');
-console.log(result.finalOutput);
-```
-
-## 🚦 **Error Handling**
-
-All responses follow this format:
-
-### Success Response
-```json
-{
-  "success": true,
-  "data": {
-    "response": "Agent response here",
-    "context": [...],
-    "agent_used": "coordinator", 
-    "handoffs": [...]
-  }
-}
-```
-
-### Error Response
-```json
-{
-  "success": false,
-  "error": "error_code",
-  "message": "Human readable error message"
-}
-```
-
-## 📊 **Performance Benefits**
-
-| Metric | Before (Manual SDK) | After (Agents SDK) |
-|--------|-------------------|-------------------|
-| **Lines of Code** | ~800 lines | ~400 lines |
-| **API Endpoints** | 12 complex endpoints | 3 simple endpoints |
-| **Setup Time** | ~2 hours | ~15 minutes |
-| **Maintenance** | High complexity | Low complexity |
-| **Features** | Basic functionality | Advanced features included |
-
 ## 🧪 **Testing**
 
 Run the examples:
