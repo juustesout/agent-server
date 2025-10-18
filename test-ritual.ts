@@ -9,7 +9,10 @@ async function testRitualWorkflow() {
     console.log('✅ Agent created successfully:', agent.name);
     
     // Test basic functionality
-    console.log('Agent instructions preview:', agent.instructions.substring(0, 100) + '...');
+    const instructions = typeof agent.instructions === 'string' 
+      ? agent.instructions 
+      : '[Function]';
+    console.log('Agent instructions preview:', instructions.substring(0, 100) + '...');
     
     console.log('🎉 Test passed! Agent creation works.');
     
