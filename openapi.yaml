@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: OpenAI Agents API
+  title: OpenAI Agents API with Ritual Composition
   description: |
     A comprehensive API for multi-agent AI workflows using OpenAI Agents SDK.
     
@@ -10,8 +10,11 @@ info:
     - Built-in tools for weather, math, and file search
     - Smart routing via coordinator agent
     - Streaming support for real-time responses
+    - Ritual composition system with 5 specialized composers
+    - Ethical risk analysis and revision workflow
+    - Complete ritual workflow orchestration
     
-  version: 1.0.0
+  version: 2.0.0
   contact:
     name: Agent Server API
     url: https://yahla.vercel.app
@@ -129,12 +132,18 @@ paths:
   /api/chat/{agentId}:
     post:
       summary: Chat with specific agent
-      description: Send a message directly to a specific agent
+      description: Send a message directly to a specific agent (including ritual composition agents)
       operationId: chatWithAgent
       tags:
         - Chat
       parameters:
         - name: agentId
+          in: path
+          required: true
+          description: Agent identifier (including all ritual composition agents)
+          schema:
+            type: string
+            enum: [weather, math, research, coordinator, composer-anthropology, composer-biology, composer-psychology, composer-economy, composer-ergonomics, synthesizer, red-flag-checker, revisor, ritual-workflow]
           in: path
           required: true
           description: Agent identifier

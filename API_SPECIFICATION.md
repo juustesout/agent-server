@@ -3,7 +3,7 @@
 ## 🚀 **Base Information**
 
 - **Base URL**: `https://yahla.vercel.app`
-- **API Version**: `1.0.0`
+- **API Version**: `2.0.0`
 - **Protocol**: HTTPS
 - **Content-Type**: `application/json`
 
@@ -70,7 +70,89 @@ GET /api/agents
       "model": "gpt-4o",
       "handoffs": ["weather", "math", "research"],
       "created_at": 1697472000000
+    },
+    {
+      "id": "composer-anthropology",
+      "name": "Composer Anthropology",
+      "instructions": "Focus op culturele structuren, symboliek, overgangsrituelen, gemeenschapsdynamiek.",
+      "model": "gpt-4o",
+      "tools": ["compose_ritual_element"],
+      "output_format": "JSON schema: {koan, activity, symbolism}",
+      "created_at": 1697472000000
+    },
+    {
+      "id": "composer-biology",
+      "name": "Composer Biology",
+      "instructions": "Focus op ecologische processen, cycli, wederkerigheid, groei/verval, natuurlijke ritmes.",
+      "model": "gpt-4o",
+      "tools": ["compose_ritual_element"],
+      "output_format": "JSON schema: {koan, activity, symbolism}",
+      "created_at": 1697472000000
+    },
+    {
+      "id": "composer-psychology",
+      "name": "Composer Psychology",
+      "instructions": "Focus op betekenisvorming, identiteit, gedrag, emotie, transformatie.",
+      "model": "gpt-4o",
+      "tools": ["compose_ritual_element"],
+      "output_format": "JSON schema: {koan, activity, symbolism}",
+      "created_at": 1697472000000
+    },
+    {
+      "id": "composer-economy",
+      "name": "Composer Economy",
+      "instructions": "Focus op waarde-uitwisseling, balans, geven/ontvangen, duurzaamheid.",
+      "model": "gpt-4o",
+      "tools": ["compose_ritual_element"],
+      "output_format": "JSON schema: {koan, activity, symbolism}",
+      "created_at": 1697472000000
+    },
+    {
+      "id": "composer-ergonomics",
+      "name": "Composer Ergonomics",
+      "instructions": "Focus op lichaam, beweging, aanraking, ademhaling, vorm, ruimte.",
+      "model": "gpt-4o",
+      "tools": ["compose_ritual_element"],
+      "output_format": "JSON schema: {koan, activity, symbolism}",
+      "created_at": 1697472000000
+    },
+    {
+      "id": "synthesizer",
+      "name": "Synthesizer",
+      "instructions": "Combineer diverse rituele perspectieven tot één samenhangend ritueel.",
+      "model": "gpt-4o",
+      "tools": ["synthesize_ritual"],
+      "output_format": "JSON schema: {koan, activity, activityDescription, themes}",
+      "created_at": 1697472000000
+    },
+    {
+      "id": "red-flag-checker",
+      "name": "RedFlagChecker",
+      "instructions": "Analyseer rituelen op ethische risicos: geweld, discriminatie, culturele toe-eigening.",
+      "model": "gpt-4o",
+      "tools": ["check_ethical_risks"],
+      "output_format": "JSON schema: {flagged, issues, suggestions}",
+      "created_at": 1697472000000
+    },
+    {
+      "id": "revisor",
+      "name": "Revisor",
+      "instructions": "Herformuleer rituelen om ethische issues op te lossen, behoud de kern.",
+      "model": "gpt-4o",
+      "tools": ["revise_ritual"],
+      "output_format": "JSON schema: {koan, activity, activityDescription, themes}",
+      "created_at": 1697472000000
+    },
+    {
+      "id": "ritual-workflow",
+      "name": "Ritual Workflow Coordinator",
+      "instructions": "Orkestrerst het volledige ritueel compositie proces met alle specialized agents.",
+      "model": "gpt-4o",
+      "handoffs": ["composer-anthropology", "composer-biology", "composer-psychology", "composer-economy", "composer-ergonomics", "synthesizer", "red-flag-checker", "revisor"],
+      "created_at": 1697472000000
     }
+  ]
+}
   ]
 }
 ```
@@ -81,18 +163,19 @@ GET /api/agents/{agent_id}
 ```
 
 **Parameters**:
-- `agent_id`: Agent identifier (weather, math, research, coordinator)
+- `agent_id`: Agent identifier (weather, math, research, coordinator, composer-anthropology, composer-biology, composer-psychology, composer-economy, composer-ergonomics, synthesizer, red-flag-checker, revisor, ritual-workflow)
 
 **Response**:
 ```json
 {
   "success": true,
   "data": {
-    "id": "weather",
-    "name": "Weather Assistant",
-    "instructions": "You are a weather specialist that helps users get weather information.",
+    "id": "composer-anthropology",
+    "name": "Composer Anthropology",
+    "instructions": "Focus op culturele structuren, symboliek, overgangsrituelen, gemeenschapsdynamiek.",
     "model": "gpt-4o",
-    "tools": ["get_weather"]
+    "tools": ["compose_ritual_element"],
+    "output_format": "JSON schema: {koan, activity, symbolism}"
   }
 }
 ```
@@ -103,12 +186,12 @@ POST /api/chat/{agent_id}
 ```
 
 **Parameters**:
-- `agent_id`: Agent identifier (weather, math, research, coordinator)
+- `agent_id`: Any available agent identifier
 
 **Request Body**:
 ```json
 {
-  "message": "What's the weather in Amsterdam?",
+  "message": "Maak een ritueel voor stress reductie",
   "history": [
     {
       "role": "user",
@@ -121,6 +204,212 @@ POST /api/chat/{agent_id}
   ],
   "stream": false
 }
+```
+
+**Response for Composer Agents**:
+```json
+{
+  "success": true,
+  "data": {
+    "response": "{\"koan\": \"Stress is als water - het neemt de vorm aan van de container waarin het zich bevindt. Verander de container, verander de stress.\", \"activity\": \"Bewust ademhalen met visualisatie van water dat wegstroomt\", \"symbolism\": \"Water als symbool voor transformatie en loslaten\"}",
+    "history": [...],
+    "agent_used": "composer-psychology",
+    "tools_used": ["compose_ritual_element"]
+  }
+}
+```
+
+**Response for Synthesizer Agent**:
+```json
+{
+  "success": true,
+  "data": {
+    "response": "{\"koan\": \"Een ritueel is als een brug tussen wie je was en wie je wordt. Elke stap draagt je dichter bij je ware zelf...\", \"activity\": \"Integratief Transformatie Ritueel\", \"activityDescription\": \"Begin met bewust ademhalen terwijl je de ruimte voorbereidt...\", \"themes\": [\"transformatie\", \"balans\", \"gemeenschap\"]}",
+    "history": [...],
+    "agent_used": "synthesizer",
+    "tools_used": ["synthesize_ritual"]
+  }
+}
+```
+
+**Response for Red Flag Checker**:
+```json
+{
+  "success": true,
+  "data": {
+    "response": "{\"flagged\": false, \"issues\": [], \"suggestions\": [\"Voeg een waarschuwing toe voor mensen met ademhalingsproblemen\", \"Specificeer dat deelname vrijwillig is\"]}",
+    "history": [...],
+    "agent_used": "red-flag-checker",
+    "tools_used": ["check_ethical_risks"]
+  }
+}
+
+## 🎭 **Ritual Composition Endpoints**
+
+### **4. Ritual Workflow Coordinator**
+```http
+POST /api/chat/ritual-workflow
+```
+
+**Description**: Complete ritual composition workflow that coordinates all specialized agents.
+
+**Request Body**:
+```json
+{
+  "message": "Maak een ochtend meditatie ritueel voor stress reductie",
+  "history": [],
+  "stream": false
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "response": "Ik ga een volledig ritueel voor je samenstellen door alle perspectieven te combineren...",
+    "history": [...],
+    "agent_used": "ritual-workflow",
+    "workflow_steps": [
+      "composer-anthropology",
+      "composer-biology", 
+      "composer-psychology",
+      "composer-economy",
+      "composer-ergonomics",
+      "synthesizer",
+      "red-flag-checker"
+    ]
+  }
+}
+```
+
+### **5. Individual Composer Agents**
+
+#### **5.1 Anthropology Composer**
+```http
+POST /api/chat/composer-anthropology
+```
+
+**Focus**: Culturele structuren, symboliek, overgangsrituelen, gemeenschapsdynamiek
+
+#### **5.2 Biology Composer**
+```http
+POST /api/chat/composer-biology  
+```
+
+**Focus**: Ecologische processen, cycli, wederkerigheid, groei/verval, natuurlijke ritmes
+
+#### **5.3 Psychology Composer**
+```http
+POST /api/chat/composer-psychology
+```
+
+**Focus**: Betekenisvorming, identiteit, gedrag, emotie, transformatie
+
+#### **5.4 Economy Composer**
+```http
+POST /api/chat/composer-economy
+```
+
+**Focus**: Waarde-uitwisseling, balans, geven/ontvangen, duurzaamheid
+
+#### **5.5 Ergonomics Composer**
+```http
+POST /api/chat/composer-ergonomics
+```
+
+**Focus**: Lichaam, beweging, aanraking, ademhaling, vorm, ruimte
+
+### **6. Processing Agents**
+
+#### **6.1 Synthesizer**
+```http
+POST /api/chat/synthesizer
+```
+
+**Description**: Combines multiple ritual perspectives into coherent whole.
+
+#### **6.2 Red Flag Checker**
+```http
+POST /api/chat/red-flag-checker
+```
+
+**Description**: Analyzes rituals for ethical risks and safety concerns.
+
+#### **6.3 Revisor**
+```http
+POST /api/chat/revisor
+```
+
+**Description**: Reformulates rituals to resolve ethical issues while preserving core essence.
+
+## 📋 **JSON Output Schemas**
+
+### **Composer Agents Output Schema**
+All composer agents (anthropology, biology, psychology, economy, ergonomics) return:
+
+```json
+{
+  "koan": "string (max 100 woorden) - Wijsheidsspraak of paradox",
+  "activity": "string (max 50 woorden) - Concrete rituele activiteit", 
+  "symbolism": "string (max 50 woorden) - Symboliek en betekenis"
+}
+```
+
+**Example**:
+```json
+{
+  "koan": "Stress is als water - het neemt de vorm aan van de container waarin het zich bevindt. Verander de container, verander de stress.",
+  "activity": "Bewust ademhalen met visualisatie van water dat wegstroomt",
+  "symbolism": "Water als symbool voor transformatie en loslaten"
+}
+```
+
+### **Synthesizer & Revisor Output Schema**
+Both synthesizer and revisor agents return:
+
+```json
+{
+  "koan": "string (200-250 woorden) - Geïntegreerde wijsheid",
+  "activity": "string - Korte naam voor het ritueel (bijv. 'Rituele wandeling')",
+  "activityDescription": "string (400-500 woorden) - Gedetailleerde beschrijving",
+  "themes": ["string", "string", "string"] - Array van thema's
+}
+```
+
+**Example**:
+```json
+{
+  "koan": "Een ritueel is als een brug tussen wie je was en wie je wordt. Elke stap op deze brug draagt je dichter bij je ware zelf, terwijl de wind van verandering je ondersteunt. In de stilte tussen ademteugen vind je de ruimte om te transformeren...",
+  "activity": "Integratief Transformatie Ritueel",
+  "activityDescription": "Begin met bewust ademhalen terwijl je de ruimte voorbereidt. Zet drie kaarsen neer die vertegenwoordigen: verleden, heden en toekomst. Begin bij de kaars van het verleden en reflecteer op wat je wilt loslaten...",
+  "themes": ["transformatie", "balans", "gemeenschap"]
+}
+```
+
+### **Red Flag Checker Output Schema**
+The red flag checker returns:
+
+```json
+{
+  "flagged": boolean, // true if ethical issues found
+  "issues": ["string"] - Array van geïdentificeerde problemen,
+  "suggestions": ["string"] - Array van verbeteringsvoorstellen
+}
+```
+
+**Example**:
+```json
+{
+  "flagged": false,
+  "issues": [],
+  "suggestions": [
+    "Voeg een waarschuwing toe voor mensen met ademhalingsproblemen",
+    "Specificeer dat deelname vrijwillig is",
+    "Bied alternatieve posities voor mensen met fysieke beperkingen"
+  ]
+}
+```
 ```
 
 **Response**:
