@@ -563,7 +563,25 @@ const withMiddleware = (handler: (req: VercelRequest, res: VercelResponse) => Pr
 
 export default withMiddleware(async (req: VercelRequest, res: VercelResponse): Promise<void> => {
   const { method, query } = req;
-  const path = (query.path as string[]) || [];
+  
+  // Parse path from query parameters or URL path
+  let path: string[] = [];
+  
+  if (query.path) {
+    // Path from rewrites (e.g., ?path=chat&path=ritual-workflow)
+    if (Array.isArray(query.path)) {
+      path = query.path as string[];
+    } else {
+      path = [query.path as string];
+    }
+  } else {
+    // Direct path parsing (fallback)
+    const urlPath = req.url?.split('?')[0] || '';
+    const segments = urlPath.split('/').filter(Boolean);
+    if (segments[0] === 'api') {
+      path = segments.slice(1); // Remove 'api' prefix
+    }
+  }
 
   if (method === 'OPTIONS') {
     res.status(200).end();
@@ -587,7 +605,7 @@ export default withMiddleware(async (req: VercelRequest, res: VercelResponse): P
       res.status(404).json({
         success: false,
         error: 'endpoint_not_found',
-        message: 'Available endpoints: /agents, /chat, /quick-chat'
+        message: `Available endpoints: /agents, /chat, /quick-chat. Received path: ${path.join('/')}`
       });
     }
   } catch (error) {
