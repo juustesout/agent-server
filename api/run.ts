@@ -172,7 +172,7 @@ const checkEthicalRisksTool = tool({
   description: 'Analyze ritual content for ethical risks and safety concerns',
   parameters: z.object({
     ritual: z.string().describe('The ritual content to analyze'),
-    context: z.string().optional().describe('Additional context about intended use')
+    context: z.string().nullable().describe('Additional context about intended use (can be null)')
   }),
   async execute({ ritual, context }) {
     return `Analyzing ritual for ethical risks: violence, discrimination, cultural appropriation, psychological/physical safety...`;
@@ -458,7 +458,7 @@ function createCoordinatorAgent(): Agent {
   });
 }
 
-function createRitualWorkflowAgent(): Agent {
+export function createRitualWorkflowAgent(): Agent {
   return new Agent({
     name: 'Ritual Workflow Coordinator',
     instructions: `Je bent de Ritual Workflow Coordinator. Je orkestrerst het volledige ritueel compositie proces.
