@@ -1,0 +1,417 @@
+openapi: 3.0.3
+info:
+  title: OpenAI Agents API
+  description: |
+    A comprehensive API for multi-agent AI workflows using OpenAI Agents SDK.
+    
+    Features:
+    - Multi-agent workflows with intelligent handoffs
+    - Stateful conversations across multiple turns  
+    - Built-in tools for weather, math, and file search
+    - Smart routing via coordinator agent
+    - Streaming support for real-time responses
+    
+  version: 1.0.0
+  contact:
+    name: Agent Server API
+    url: https://yahla.vercel.app
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://yahla.vercel.app
+    description: Production server
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /api/agents:
+    get:
+      summary: List all available agents
+      description: Retrieve all AI agents and their configurations
+      operationId: listAgents
+      tags:
+        - Agents
+      responses:
+        '200':
+          description: List of agents retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentListResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/agents/{agentId}:
+    get:
+      summary: Get specific agent details
+      description: Retrieve configuration for a specific agent
+      operationId: getAgent
+      tags:
+        - Agents
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          description: Agent identifier
+          schema:
+            type: string
+            enum: [weather, math, research, coordinator]
+      responses:
+        '200':
+          description: Agent details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/quick-chat:
+    post:
+      summary: Quick chat with intelligent routing
+      description: |
+        Send a message to the coordinator agent which will intelligently route 
+        to the most appropriate specialist agent based on the content.
+      operationId: quickChat
+      tags:
+        - Chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            examples:
+              simple_question:
+                summary: Simple question
+                value:
+                  message: "What's the weather in London?"
+                  history: []
+                  stream: false
+              math_and_weather:
+                summary: Multi-domain query
+                value:
+                  message: "Calculate 25 * 47 and tell me the weather in Amsterdam"
+                  history: []
+                  stream: false
+              with_history:
+                summary: Conversation with history
+                value:
+                  message: "And what about tomorrow?"
+                  history: [
+                    {"role": "user", "content": "What's the weather today?"},
+                    {"role": "assistant", "content": "Today it's 20°C and sunny."}
+                  ]
+                  stream: false
+      responses:
+        '200':
+          description: Chat response generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/chat/{agentId}:
+    post:
+      summary: Chat with specific agent
+      description: Send a message directly to a specific agent
+      operationId: chatWithAgent
+      tags:
+        - Chat
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          description: Agent identifier
+          schema:
+            type: string
+            enum: [weather, math, research, coordinator]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            examples:
+              weather_query:
+                summary: Weather question
+                value:
+                  message: "What's the forecast for this week in Berlin?"
+                  history: []
+                  stream: false
+              math_calculation:
+                summary: Math calculation
+                value:
+                  message: "Calculate the compound interest on $1000 at 5% for 3 years"
+                  history: []
+                  stream: false
+              file_search:
+                summary: File search
+                value:
+                  message: "Find all PDF files related to quarterly reports"
+                  history: []
+                  stream: false
+              streaming_request:
+                summary: Streaming response
+                value:
+                  message: "Tell me about the weather patterns this month"
+                  history: []
+                  stream: true
+      responses:
+        '200':
+          description: Chat response generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+            text/event-stream:
+              schema:
+                type: string
+                description: Server-sent events for streaming responses
+                example: |
+                  data: {"type": "start", "agent": "weather"}
+                  
+                  data: {"type": "content", "delta": "The weather"}
+                  
+                  data: {"type": "content", "delta": " forecast shows"}
+                  
+                  data: {"type": "end", "response": "The weather forecast shows sunny skies..."}
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+      description: API key for authentication
+
+  schemas:
+    Agent:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique agent identifier
+          example: "weather"
+        name:
+          type: string
+          description: Human-readable agent name
+          example: "Weather Assistant"
+        instructions:
+          type: string
+          description: Agent's role and capabilities
+          example: "You are a weather specialist that helps users get weather information."
+        model:
+          type: string
+          description: AI model used by the agent
+          example: "gpt-4o"
+        tools:
+          type: array
+          items:
+            type: string
+          description: Available tools for this agent
+          example: ["get_weather"]
+        handoffs:
+          type: array
+          items:
+            type: string
+          description: Agents this one can hand off to
+          example: ["weather", "math", "research"]
+        created_at:
+          type: integer
+          format: int64
+          description: Creation timestamp
+          example: 1697472000000
+
+    ChatMessage:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [user, assistant, system]
+          description: Message role
+        content:
+          type: string
+          description: Message content
+      required:
+        - role
+        - content
+
+    ChatRequest:
+      type: object
+      properties:
+        message:
+          type: string
+          description: User message to send to the agent
+          minLength: 1
+          example: "What's the weather like in Amsterdam?"
+        history:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+          description: Previous conversation history
+          default: []
+        stream:
+          type: boolean
+          description: Whether to stream the response
+          default: false
+      required:
+        - message
+
+    ChatResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the request was successful
+          example: true
+        data:
+          type: object
+          properties:
+            response:
+              type: string
+              description: Agent's response message
+              example: "The current weather in Amsterdam is 15°C with partly cloudy skies..."
+            history:
+              type: array
+              items:
+                $ref: '#/components/schemas/ChatMessage'
+              description: Updated conversation history
+            agent_used:
+              type: string
+              description: Primary agent that handled the request
+              example: "weather"
+            last_agent:
+              type: string
+              description: Last agent in the conversation chain
+              example: "Weather Assistant"
+            tools_used:
+              type: array
+              items:
+                type: string
+              description: Tools that were executed
+              example: ["get_weather"]
+
+    AgentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/Agent'
+
+    AgentListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Agent'
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: Error type identifier
+        message:
+          type: string
+          description: Human-readable error message
+        details:
+          type: array
+          items:
+            type: object
+          description: Additional error details (for validation errors)
+
+  responses:
+    UnauthorizedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: "unauthorized"
+            message: "Invalid or missing API key"
+
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: "agent_not_found"
+            message: "Agent not found"
+
+    ValidationError:
+      description: Invalid input data
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: "validation_error"
+            message: "Invalid input data"
+            details:
+              - field: "message"
+                issue: "Required field missing"
+
+    RateLimitError:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: "rate_limit_exceeded"
+            message: "Too many requests, please try again later"
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: "internal_error"
+            message: "An unexpected error occurred"
+
+tags:
+  - name: Agents
+    description: Agent management and discovery
+  - name: Chat
+    description: Conversational AI interactions

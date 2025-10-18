@@ -9,7 +9,8 @@
     "start": "node dist/api/run.js",
     "test": "jest",
     "lint": "eslint . --ext .ts,.tsx",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "knip": "knip"
   },
   "dependencies": {
     "@openai/agents": "^0.1.9",
@@ -23,13 +24,14 @@
   "devDependencies": {
     "@types/cors": "^2.8.16",
     "@types/express": "^4.17.21",
-    "@types/node": "^20.8.10",
+    "@types/node": "^20.19.21",
     "@types/uuid": "^9.0.7",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
     "@typescript-eslint/parser": "^6.10.0",
     "eslint": "^8.53.0",
     "jest": "^29.7.0",
-    "typescript": "^5.2.2",
+    "knip": "^5.65.0",
+    "typescript": "^5.9.3",
     "vercel": "^32.5.0"
   },
   "engines": {
