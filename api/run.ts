@@ -459,16 +459,6 @@ function createCoordinatorAgent(): Agent {
 }
 
 function createRitualWorkflowAgent(): Agent {
-  // Create ritual composition agents for handoffs
-  const composerAnthropologyAgent = createComposerAnthropologyAgent();
-  const composerBiologyAgent = createComposerBiologyAgent();
-  const composerPsychologyAgent = createComposerPsychologyAgent();
-  const composerEconomyAgent = createComposerEconomyAgent();
-  const composerErgonomicsAgent = createComposerErgonomicsAgent();
-  const synthesizerAgent = createSynthesizerAgent();
-  const redFlagCheckerAgent = createRedFlagCheckerAgent();
-  const revisorAgent = createRevisorAgent();
-
   return new Agent({
     name: 'Ritual Workflow Coordinator',
     instructions: `Je bent de Ritual Workflow Coordinator. Je orkestrerst het volledige ritueel compositie proces.
@@ -489,17 +479,8 @@ function createRitualWorkflowAgent(): Agent {
     - Herstel eventuele issues
 
     Leg altijd uit welke stap je uitvoert.`,
-    model: 'gpt-4o',
-    handoffs: [
-      composerAnthropologyAgent,
-      composerBiologyAgent, 
-      composerPsychologyAgent,
-      composerEconomyAgent,
-      composerErgonomicsAgent,
-      synthesizerAgent,
-      redFlagCheckerAgent,
-      revisorAgent
-    ]
+    model: 'gpt-4o'
+    // Note: Handoffs removed to prevent circular dependencies
   });
 }
 
@@ -562,24 +543,16 @@ const withMiddleware = (handler: (req: VercelRequest, res: VercelResponse) => Pr
 // ========================================================================================
 
 export default withMiddleware(async (req: VercelRequest, res: VercelResponse): Promise<void> => {
-  const { method, query } = req;
+  const { method } = req;
   
-  // Parse path from query parameters or URL path
+  // Parse path from URL directly
   let path: string[] = [];
   
-  if (query.path) {
-    // Path from rewrites (e.g., ?path=chat&path=ritual-workflow)
-    if (Array.isArray(query.path)) {
-      path = query.path as string[];
-    } else {
-      path = [query.path as string];
-    }
-  } else {
-    // Direct path parsing (fallback)
-    const urlPath = req.url?.split('?')[0] || '';
+  if (req.url) {
+    const urlPath = req.url.split('?')[0]; // Remove query parameters
     const segments = urlPath.split('/').filter(Boolean);
     if (segments[0] === 'api') {
-      path = segments.slice(1); // Remove 'api' prefix
+      path = segments.slice(1); // Remove 'api' prefix, keep the rest
     }
   }
 
@@ -594,6 +567,10 @@ export default withMiddleware(async (req: VercelRequest, res: VercelResponse): P
       initializeDefaultAgents();
     }
 
+    // Debug logging
+    console.log('Request URL:', req.url);
+    console.log('Parsed path:', path);
+
     // Route handling
     if (path[0] === 'agents') {
       await handleAgents(req, res, path.slice(1));
@@ -601,11 +578,29 @@ export default withMiddleware(async (req: VercelRequest, res: VercelResponse): P
       await handleChat(req, res, path.slice(1));
     } else if (path[0] === 'quick-chat') {
       await handleQuickChat(req, res);
+    } else if (path[0] === 'composer-anthropology') {
+      await handleRitualAgent(req, res, 'composer-anthropology');
+    } else if (path[0] === 'composer-biology') {
+      await handleRitualAgent(req, res, 'composer-biology');
+    } else if (path[0] === 'composer-psychology') {
+      await handleRitualAgent(req, res, 'composer-psychology');
+    } else if (path[0] === 'composer-economy') {
+      await handleRitualAgent(req, res, 'composer-economy');
+    } else if (path[0] === 'composer-ergonomics') {
+      await handleRitualAgent(req, res, 'composer-ergonomics');
+    } else if (path[0] === 'synthesizer') {
+      await handleRitualAgent(req, res, 'synthesizer');
+    } else if (path[0] === 'red-flag-checker') {
+      await handleRitualAgent(req, res, 'red-flag-checker');
+    } else if (path[0] === 'revisor') {
+      await handleRitualAgent(req, res, 'revisor');
+    } else if (path[0] === 'ritual-workflow') {
+      await handleRitualAgent(req, res, 'ritual-workflow');
     } else {
       res.status(404).json({
         success: false,
         error: 'endpoint_not_found',
-        message: `Available endpoints: /agents, /chat, /quick-chat. Received path: ${path.join('/')}`
+        message: `Available endpoints: /agents, /chat, /quick-chat, /composer-anthropology, /composer-biology, /composer-psychology, /composer-economy, /composer-ergonomics, /synthesizer, /red-flag-checker, /revisor, /ritual-workflow. Received URL: ${req.url}, Parsed path: ${path.join('/')}`
       });
     }
   } catch (error) {
@@ -996,5 +991,68 @@ async function handleQuickChat(req: VercelRequest, res: VercelResponse): Promise
       error: 'method_not_allowed',
       message: 'Only POST method allowed for quick chat'
     });
+  }
+}
+
+// ========================================================================================
+// RITUAL AGENT HANDLER
+// ========================================================================================
+
+async function handleRitualAgent(req: VercelRequest, res: VercelResponse, agentType: string): Promise<void> {
+  if (req.method !== 'POST') {
+    res.status(405).json({
+      success: false,
+      error: 'method_not_allowed',
+      message: `Method ${req.method} not allowed`
+    });
+    return;
+  }
+
+  try {
+    const agent = agents.get(agentType);
+    
+    if (!agent) {
+      res.status(404).json({
+        success: false,
+        error: 'agent_not_found',
+        message: `Agent '${agentType}' not found`
+      });
+      return;
+    }
+
+    const chatData = ChatSchema.parse(req.body);
+    
+    const input = chatData.history.length > 0 
+      ? [...chatData.history, user(chatData.message)]
+      : chatData.message;
+    
+    const result = await run(agent, input);
+
+    res.json({
+      success: true,
+      data: {
+        response: result.finalOutput,
+        history: result.history,
+        agent_used: agentType,
+        last_agent: result.lastAgent?.name || agentType
+      }
+    });
+
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({
+        success: false,
+        error: 'validation_error',
+        message: 'Invalid input data',
+        details: error.issues
+      });
+    } else {
+      console.error(`Error in ${agentType} agent:`, error);
+      res.status(500).json({
+        success: false,
+        error: 'agent_error',
+        message: error instanceof Error ? error.message : `Failed to process ${agentType} request`
+      });
+    }
   }
 }

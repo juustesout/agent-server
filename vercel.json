@@ -2,20 +2,8 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/api/agents",
-      "destination": "/api/run?path=agents"
-    },
-    {
-      "source": "/api/agents/(.*)",
-      "destination": "/api/run?path=agents&path=$1"
-    },
-    {
-      "source": "/api/quick-chat",
-      "destination": "/api/run?path=quick-chat"
-    },
-    {
-      "source": "/api/chat/(.*)",
-      "destination": "/api/run?path=chat&path=$1"
+      "source": "/api/((?!run).*)",
+      "destination": "/api/run"
     }
   ]
 }
